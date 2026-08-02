@@ -3,11 +3,11 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
-  <groupId>io.forge.reportforge</groupId>
-  <artifactId>reportforge-parent</artifactId>
+  <groupId>io.forge.turviforge</groupId>
+  <artifactId>turviforge-parent</artifactId>
   <version>0.5.0</version>
   <packaging>pom</packaging>
-  <name>ReportForge — Advanced JMeter Reporting</name>
+  <name>TurviForge — Advanced JMeter Reporting</name>
 
   <licenses>
     <license>
@@ -24,8 +24,8 @@
   </properties>
 
   <modules>
-    <module>reportforge-core</module>
-    <module>reportforge-cli</module>
-    <module>reportforge-jmeter</module>
+    <module>turviforge-core</module>
+    <module>turviforge-cli</module>
+    <module>turviforge-jmeter</module>
   </modules>
 </project>

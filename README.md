@@ -1,12 +1,11 @@
-# ReportForge — Advanced Reporting Plugin for Apache JMeter
+# TurviForge — Advanced Reporting Plugin for Apache JMeter
 
 Replaces the stock JTL-based HTML dashboard with an accurate, interactive,
 CI-ready report. Single self-contained `report.html`, canonical
-`report-data.json` (schema `reportforge/1`), SLA verdicts with exit codes,
+`report-data.json` (schema `turviforge/1`), SLA verdicts with exit codes,
 and JUnit XML for pipelines.
 
-**Status: v0.5.0 (MVP milestone from PRD §8).** Companion docs:
-`ReportForge_PRD_v1.0.md`, `ReportForge_TechSpec_v1.0.md`.
+**Status: v0.5.0 (MVP milestone).**
 
 ## What you get
 
@@ -25,7 +24,7 @@ and JUnit XML for pipelines.
 ## Quick start (CLI — no JMeter required)
 
 ```bash
-java -jar reportforge-cli.jar generate \
+java -jar turviforge-cli.jar generate \
   --jtl results.jtl --out report/ \
   --sla samples/sla.yaml --junit \
   --title "Checkout API — RC 2.4" --meta build=1842 --meta env=perf-1
@@ -38,8 +37,8 @@ multiple `--jtl a.jtl,b.jtl` files merge (distributed runs).
 
 ## JMeter GUI
 
-Copy `reportforge-jmeter-<ver>.jar` into `JMETER_HOME/lib/ext`, restart, then
-**Tools → ReportForge: Generate Advanced Report**. Generation runs off the
+Copy `turviforge-jmeter-<ver>.jar` into `JMETER_HOME/lib/ext`, restart, then
+**Tools → TurviForge: Generate Advanced Report**. Generation runs off the
 event thread; the report opens in your browser on completion.
 
 ## SLA YAML
@@ -60,23 +59,23 @@ Metrics: `p50 p75 p90 p95 p99 p999 mean min max error_rate throughput apdex`.
 ## Building
 
 Full build (Maven): `mvn package` → CLI fat jar + `lib/ext` plugin jar.
-The `reportforge-core` module has **zero JMeter dependencies** and is the
+The `turviforge-core` module has **zero JMeter dependencies** and is the
 reuse surface for LoadStorm / ScaleForge (`report-data.json` is the contract).
 
 Sandbox/offline build without Maven:
 
 ```bash
-./build.sh    # javac + jar; produces dist/reportforge-cli.jar
+./build.sh    # javac + jar; produces dist/turviforge-cli.jar
 ```
 
 ## Repo layout
 
 ```
-reportforge-core/      parser, histogram, metrics, SLA, JSON, HTML assembly (no JMeter)
-reportforge-cli/       command line entry point
-reportforge-jmeter/    MenuCreator GUI action + dialog (compiles against ApacheJMeter_core)
-reportforge-ui/        report front-end (vanilla JS + ECharts, inlined at build)
-reportforge-testdata/  deterministic synthetic JTL generator
+turviforge-core/      parser, histogram, metrics, SLA, JSON, HTML assembly (no JMeter)
+turviforge-cli/       command line entry point
+turviforge-jmeter/    MenuCreator GUI action + dialog (compiles against ApacheJMeter_core)
+turviforge-ui/        report front-end (vanilla JS + ECharts, inlined at build)
+turviforge-testdata/  deterministic synthetic JTL generator
 samples/               example sla.yaml
 ```
 
@@ -95,13 +94,13 @@ separate contributor license agreement approved by the repository owner.
 
 Copyright © 2026 Chandran Annapaneni. All rights reserved.
 
-ReportForge is source-available under the [PolyForm Noncommercial
+TurviForge is source-available under the [PolyForm Noncommercial
 License 1.0.0](https://polyformproject.org/licenses/noncommercial/1.0.0).
 
-You may use, study, modify, and distribute ReportForge only for
+You may use, study, modify, and distribute TurviForge only for
 purposes permitted by that license.
 
-Commercial use—including providing ReportForge as part of a paid
+Commercial use—including providing TurviForge as part of a paid
 product or service, using it to deliver paid services, or using it
 for internal business purposes—requires a separate commercial
 license from the copyright owner.
@@ -112,7 +111,7 @@ See [LICENSE](LICENSE) for the complete terms.
 
 ### Third-party software
 
-ReportForge includes Apache ECharts, which remains licensed separately
-under the Apache License 2.0. The ReportForge license does not restrict
+TurviForge includes Apache ECharts, which remains licensed separately
+under the Apache License 2.0. The TurviForge license does not restrict
 rights granted directly under third-party licenses. See
 [THIRD_PARTY_NOTICES](THIRD_PARTY_NOTICES).

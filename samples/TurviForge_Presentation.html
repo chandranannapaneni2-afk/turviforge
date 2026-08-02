@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TurviForge — Advanced JMeter Reporting</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'Segoe UI', system-ui, sans-serif; background: #0f172a; color: #e2e8f0; }
+.slide { min-height: 100vh; display: flex; flex-direction: column; justify-content: center; padding: 60px 80px; page-break-after: always; position: relative; }
+.slide::after { content: attr(data-num); position: absolute; bottom: 30px; right: 40px; font-size: 14px; color: #475569; }
+h1 { font-size: 3.2em; font-weight: 800; background: linear-gradient(135deg, #38bdf8, #818cf8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 16px; }
+h2 { font-size: 2.2em; font-weight: 700; color: #38bdf8; margin-bottom: 32px; }
+h3 { font-size: 1.3em; color: #94a3b8; font-weight: 400; margin-bottom: 8px; }
+p, li { font-size: 1.25em; line-height: 1.7; color: #cbd5e1; }
+ul { list-style: none; padding: 0; }
+ul li { padding: 8px 0 8px 28px; position: relative; }
+ul li::before { content: "▸"; position: absolute; left: 0; color: #38bdf8; font-weight: bold; }
+.grid { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; margin-top: 24px; }
+.card { background: #1e293b; border: 1px solid #334155; border-radius: 12px; padding: 24px; }
+.card h4 { color: #38bdf8; font-size: 1.1em; margin-bottom: 12px; }
+.card p, .card li { font-size: 1em; }
+.badge { display: inline-block; background: #1e3a5f; color: #38bdf8; padding: 4px 12px; border-radius: 6px; font-size: 0.85em; margin: 4px 4px 4px 0; }
+.highlight { color: #fbbf24; font-weight: 600; }
+.code { background: #1e293b; border: 1px solid #334155; border-radius: 8px; padding: 20px; font-family: 'Cascadia Code', 'Fira Code', monospace; font-size: 0.95em; color: #a5f3fc; margin: 16px 0; white-space: pre-wrap; }
+.stat-row { display: flex; gap: 40px; margin: 24px 0; }
+.stat { text-align: center; }
+.stat .num { font-size: 2.8em; font-weight: 800; color: #38bdf8; }
+.stat .label { font-size: 0.9em; color: #64748b; margin-top: 4px; }
+table { width: 100%; border-collapse: collapse; margin: 16px 0; }
+th, td { padding: 12px 16px; text-align: left; border-bottom: 1px solid #334155; font-size: 1em; }
+th { color: #38bdf8; font-weight: 600; }
+.subtitle { font-size: 1.4em; color: #94a3b8; margin-top: 8px; }
+.tag { font-size: 0.8em; background: #312e81; color: #a5b4fc; padding: 3px 10px; border-radius: 4px; }
+@media print { .slide { min-height: auto; padding: 40px; } body { background: white; color: #1e293b; } h2 { color: #1d4ed8; } }
+</style>
+</head>
+<body>
+
+<!-- Slide 1: Title -->
+<div class="slide" data-num="1">
+  <h3>Performance Engineering / Forge Platform</h3>
+  <h1>TurviForge</h1>
+  <p class="subtitle">Advanced Reporting Plugin for Apache JMeter</p>
+  <p style="margin-top: 24px; color: #64748b;">v0.5.0 &nbsp;|&nbsp; Chandran Annapaneni &nbsp;|&nbsp; 2026</p>
+  <div style="margin-top: 32px;">
+    <span class="badge">Java 17</span>
+    <span class="badge">Zero-dep Core</span>
+    <span class="badge">Single HTML Report</span>
+    <span class="badge">CI/CD Ready</span>
+  </div>
+</div>
+
+<!-- Slide 2: Problem -->
+<div class="slide" data-num="2">
+  <h2>The Problem</h2>
+  <p style="margin-bottom: 24px;">JMeter's built-in HTML dashboard hasn't evolved in a decade:</p>
+  <div class="grid">
+    <div class="card">
+      <h4>❌ Inaccurate Percentiles</h4>
+      <p>10–30% error at p99/p99.9 from coarse bucket interpolation. SLAs live at p99+.</p>
+    </div>
+    <div class="card">
+      <h4>❌ No Comparison</h4>
+      <p>No way to diff two runs without external tooling (Grafana, Excel, scripts).</p>
+    </div>
+    <div class="card">
+      <h4>❌ No Verdict</h4>
+      <p>Descriptive, not evaluative. No pass/fail, no CI exit code. Teams bolt on Taurus.</p>
+    </div>
+    <div class="card">
+      <h4>❌ Poor Scalability</h4>
+      <p>Struggles beyond a few GB. Multi-hour soak tests routinely fail to render.</p>
+    </div>
+  </div>
+  <p style="margin-top: 24px; color: #f87171;">Result: 1–3 hours per test cycle on manual post-processing.</p>
+</div>
+
+<!-- Slide 3: Solution -->
+<div class="slide" data-num="3">
+  <h2>The Solution</h2>
+  <p style="margin-bottom: 24px;">A drop-in JMeter plugin that fully replaces the stock dashboard:</p>
+  <ul>
+    <li><span class="highlight">Exact-grade percentiles</span> — log-linear histogram, ≤0.78% error at p99.9</li>
+    <li><span class="highlight">SLA gates</span> — declarative YAML → PASS / DEGRADED / FAIL → exit codes + JUnit XML</li>
+    <li><span class="highlight">Run-to-run comparison</span> — Mann-Whitney U + Cliff's delta, regression detection</li>
+    <li><span class="highlight">Single self-contained HTML</span> — all JS/CSS/data inlined, works offline, email-able</li>
+    <li><span class="highlight">Constant memory</span> — streaming parse, handles 10 GB+ JTL in &lt;512 MB heap</li>
+    <li><span class="highlight">Zero friction</span> — one JAR in lib/ext, no test plan changes required</li>
+  </ul>
+</div>
+
+<!-- Slide 4: Architecture -->
+<div class="slide" data-num="4">
+  <h2>Architecture</h2>
+  <div class="code">┌─────────────────────────────────────────────────────────────┐
+│                    turviforge-jmeter                        │
+│   MenuCreator GUI · Live Collector · Auto-generate hook     │
+└────────────────────────────┬────────────────────────────────┘
+                             │ depends on
+┌────────────────────────────▼────────────────────────────────┐
+│                    turviforge-core                          │
+│  ┌──────────┐  ┌──────────────┐  ┌──────────┐  ┌────────┐  │
+│  │ M1 Parse │→ │ M2 Pipeline  │→ │ M3 Emit  │→ │ M4 SLA │  │
+│  │ CSV/XML  │  │ Histogram    │  │ JSON/HTML│  │ M5 Diff│  │
+│  └──────────┘  └──────────────┘  └──────────┘  └────────┘  │
+│              ZERO external dependencies                      │
+└────────────────────────────┬────────────────────────────────┘
+                             │
+┌────────────────────────────▼────────────────────────────────┐
+│                    turviforge-cli                           │
+│   generate · compare · validate · sla init                  │
+└─────────────────────────────────────────────────────────────┘</div>
+  <p><span class="tag">Key principle</span> &nbsp;Core has zero JMeter deps → reusable by LoadStorm / ScaleForge</p>
+</div>
+
+<!-- Slide 5: Key Metrics -->
+<div class="slide" data-num="5">
+  <h2>By the Numbers</h2>
+  <div class="stat-row">
+    <div class="stat"><div class="num">≤0.78%</div><div class="label">Percentile error at p99.9</div></div>
+    <div class="stat"><div class="num">33</div><div class="label">Unit tests, all passing</div></div>
+    <div class="stat"><div class="num">44</div><div class="label">Source files</div></div>
+    <div class="stat"><div class="num">6,260</div><div class="label">Lines of code</div></div>
+  </div>
+  <div class="stat-row">
+    <div class="stat"><div class="num">4</div><div class="label">Maven modules</div></div>
+    <div class="stat"><div class="num">37</div><div class="label">Functional requirements</div></div>
+    <div class="stat"><div class="num">34/37</div><div class="label">Implemented (92%)</div></div>
+    <div class="stat"><div class="num">&lt;3s</div><div class="label">Report open time</div></div>
+  </div>
+</div>
+
+<!-- Slide 6: Features -->
+<div class="slide" data-num="6">
+  <h2>Feature Modules</h2>
+  <table>
+    <tr><th>Module</th><th>Capability</th><th>Status</th></tr>
+    <tr><td>M1 — Ingestion</td><td>CSV/XML JTL, gzip, k-way merge, sub-samples</td><td>✅ Done</td></tr>
+    <tr><td>M2 — Analytics</td><td>Histogram percentiles, APDEX, error clustering, scalability/knee, steady-state</td><td>✅ Done</td></tr>
+    <tr><td>M3 — Renderer</td><td>Self-contained HTML, ECharts, LTTB thinning, print CSS, CSV export</td><td>✅ Done</td></tr>
+    <tr><td>M4 — SLA</td><td>YAML rules, glob matching, 3-level verdict, JUnit XML, exit codes</td><td>✅ Done</td></tr>
+    <tr><td>M5 — Comparison</td><td>Mann-Whitney U, Cliff's delta, regression detection</td><td>✅ Done</td></tr>
+    <tr><td>M6 — Integration</td><td>GUI dialog, CLI, auto-generate hook, live collector</td><td>✅ Done</td></tr>
+    <tr><td>M7 — Packaging</td><td>Shaded JAR, Plugins Manager listing</td><td>🔄 Partial</td></tr>
+  </table>
+</div>
+
+<!-- Slide 7: Demo CLI -->
+<div class="slide" data-num="7">
+  <h2>Usage — CLI</h2>
+  <div class="code"># Generate report with SLA evaluation
+java -jar turviforge-cli.jar generate \
+  --jtl results.jtl --out report/ \
+  --sla sla.yaml --junit \
+  --title "Checkout API — RC 2.4"
+
+# Auto-generate SLA from a baseline run
+java -jar turviforge-cli.jar sla \
+  --jtl baseline.jtl --out sla.yaml --headroom 50
+
+# Compare two runs
+java -jar turviforge-cli.jar compare \
+  --baseline base/report-data.json \
+  --candidate cand/report-data.json --out diff/
+
+# Validate SLA syntax
+java -jar turviforge-cli.jar validate --sla sla.yaml</div>
+  <p>Exit codes: <span class="highlight">0</span> PASS · <span class="highlight">1</span> FAIL · <span class="highlight">2</span> usage · <span class="highlight">3</span> input · <span class="highlight">4</span> internal</p>
+</div>
+
+<!-- Slide 8: SLA -->
+<div class="slide" data-num="8">
+  <h2>SLA Engine</h2>
+  <div class="grid">
+    <div class="card">
+      <h4>Declarative YAML</h4>
+      <div class="code" style="font-size: 0.85em;">version: 1
+defaults:
+  window: steady-state
+  apdex: { satisfied_ms: 400, tolerated_ms: 1200 }
+rules:
+  - match: "Checkout*"
+    assert:
+      - { metric: p95, op: "&lt;", value: 800, warn: 700 }
+      - { metric: error_rate, op: "&lt;", value: 0.5 }
+  - match: "TOTAL"
+    assert:
+      - { metric: throughput, op: "&gt;=", value: 100 }</div>
+    </div>
+    <div class="card">
+      <h4>Three-Level Verdict</h4>
+      <ul>
+        <li><span style="color:#4ade80;">PASS</span> — all assertions met</li>
+        <li><span style="color:#fbbf24;">DEGRADED</span> — warn thresholds breached</li>
+        <li><span style="color:#f87171;">FAIL</span> — hard thresholds breached</li>
+      </ul>
+      <h4 style="margin-top: 16px;">CI Integration</h4>
+      <ul>
+        <li>Non-zero exit code on FAIL</li>
+        <li>JUnit XML for pipeline UIs</li>
+        <li>Verdict banner in HTML report</li>
+        <li>Per-rule evaluation table</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- Slide 9: Comparison -->
+<div class="slide" data-num="9">
+  <h2>Comparison Engine (M5)</h2>
+  <p style="margin-bottom: 24px;">Statistically rigorous run-to-run comparison:</p>
+  <div class="grid">
+    <div class="card">
+      <h4>Statistical Tests</h4>
+      <ul>
+        <li><span class="highlight">Mann-Whitney U</span> — rank-sum significance from histogram data</li>
+        <li><span class="highlight">Cliff's delta</span> — effect size (|d| ≥ 0.147 = small effect)</li>
+        <li>Dual threshold: significant AND exceeds tolerance</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h4>Regression Detection</h4>
+      <ul>
+        <li>p95 regression &gt; 10% with significance</li>
+        <li>Error rate increase &gt; 0.2 pp</li>
+        <li>Throughput drop &gt; 10%</li>
+        <li>Per-label delta table in report</li>
+      </ul>
+    </div>
+  </div>
+  <p style="margin-top: 16px; color: #94a3b8;">No raw samples needed — works entirely from serialized histograms in report-data.json.</p>
+</div>
+
+<!-- Slide 10: Deployment -->
+<div class="slide" data-num="10">
+  <h2>Deployment</h2>
+  <div class="grid">
+    <div class="card">
+      <h4>JMeter Plugin</h4>
+      <ul>
+        <li>Copy shaded JAR → <code>lib/ext/</code></li>
+        <li>Restart JMeter</li>
+        <li>Tools → TurviForge menu</li>
+        <li>Or: Add → Listener → Live Collector</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h4>CI/CD (Headless)</h4>
+      <ul>
+        <li>No JMeter installation needed</li>
+        <li>Single runnable JAR</li>
+        <li>SLA exit codes gate pipelines</li>
+        <li>JUnit XML for Jenkins/GitLab/GitHub</li>
+      </ul>
+    </div>
+  </div>
+  <div class="code" style="margin-top: 24px; font-size: 0.9em;"># JMeter non-GUI with auto-report
+jmeter -n -t test.jmx -l results.jtl \
+  -Jturviforge.autogenerate=true \
+  -Jturviforge.sla=sla.yaml</div>
+</div>
+
+<!-- Slide 11: Tech Highlights -->
+<div class="slide" data-num="11">
+  <h2>Technical Highlights</h2>
+  <ul>
+    <li><span class="highlight">Log-linear histogram</span> — 128 sub-buckets/band, 25 bands, deflate+base64 wire format</li>
+    <li><span class="highlight">Adaptive CSV parser</span> — reads any jmeter.save.saveservice.* column config at runtime</li>
+    <li><span class="highlight">K-way merge</span> — min-heap timestamp-ordered merge for distributed runs</li>
+    <li><span class="highlight">LTTB downsampling</span> — 2000-point visual cap, full data preserved in JSON</li>
+    <li><span class="highlight">Live Collector</span> — lock-free queue + 1s flusher, ≤2µs per sample on sampler threads</li>
+    <li><span class="highlight">Deterministic output</span> — same JTL + config → byte-identical report-data.json</li>
+    <li><span class="highlight">Zero dependencies</span> — hand-rolled JSON, YAML subset parser, no Jackson/SnakeYAML</li>
+  </ul>
+</div>
+
+<!-- Slide 12: License & Status -->
+<div class="slide" data-num="12">
+  <h2>License & Status</h2>
+  <div class="grid">
+    <div class="card">
+      <h4>Licensing</h4>
+      <ul>
+        <li><span class="highlight">PolyForm Noncommercial 1.0.0</span></li>
+        <li>Source-available, not OSI "open source"</li>
+        <li>Free for personal/academic/government use</li>
+        <li>Commercial license available separately</li>
+        <li>ECharts remains Apache-2.0</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h4>Current Status</h4>
+      <ul>
+        <li>✅ Core engine complete (M1–M5)</li>
+        <li>✅ CLI with 4 commands</li>
+        <li>✅ JMeter GUI + Live Collector</li>
+        <li>✅ 33 unit tests passing</li>
+        <li>🔄 Plugins Manager submission</li>
+        <li>🔄 Documentation site</li>
+      </ul>
+    </div>
+  </div>
+  <p style="margin-top: 32px; text-align: center; color: #64748b;">
+    github.com/chandranannapaneni2-afk/turviforge &nbsp;|&nbsp; © 2026 Chandran Annapaneni
+  </p>
+</div>
+
+</body>
+</html>
