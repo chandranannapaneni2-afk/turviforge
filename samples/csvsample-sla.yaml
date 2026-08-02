@@ -1,0 +1,31 @@
+# ReportForge SLA — CSVSample.jtl
+version: 1
+
+defaults:
+  window: full-run
+  apdex: { satisfied_ms: 200, tolerated_ms: 500 }
+
+rules:
+  # Login transactions should be fast
+  - match: "Login*"
+    assert:
+      - { metric: p95, op: "<", value: 500, warn: 350 }
+      - { metric: error_rate, op: "<=", value: 0.0 }
+
+  # Actions (a–d, none, EOF)
+  - match: "Action*"
+    assert:
+      - { metric: p95, op: "<", value: 600, warn: 400 }
+      - { metric: error_rate, op: "<", value: 0.5 }
+
+  # Logout
+  - match: "Logout"
+    assert:
+      - { metric: p95, op: "<", value: 400, warn: 300 }
+
+  # Overall health
+  - match: "TOTAL"
+    assert:
+      - { metric: error_rate, op: "<", value: 1.0, warn: 0.1 }
+      - { metric: p95, op: "<", value: 600, warn: 450 }
+      - { metric: throughput, op: ">=", value: 0.1 }

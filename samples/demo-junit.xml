@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="Shop Checkout ��� Load Test RC-2.4" tests="7" failures="5">
+  <testcase name="Checkout :: p95 &lt; 1500" classname="reportforge.sla">
+    <failure message="actual 31488 violates &lt; 1500"/>
+  </testcase>
+  <testcase name="Checkout :: error_rate &lt; 2" classname="reportforge.sla">
+    <failure message="actual 10.251 violates &lt; 2"/>
+  </testcase>
+  <testcase name="Payment Gateway :: p95 &lt; 2000" classname="reportforge.sla">
+    <failure message="actual 30976 violates &lt; 2000"/>
+  </testcase>
+  <testcase name="Payment Gateway :: error_rate &lt; 1" classname="reportforge.sla">
+    <failure message="actual 9.748 violates &lt; 1"/>
+  </testcase>
+  <testcase name="Login :: p95 &lt; 500" classname="reportforge.sla"/>
+  <testcase name="TOTAL :: error_rate &lt; 1.500" classname="reportforge.sla">
+    <failure message="actual 3.499 violates &lt; 1.500"/>
+  </testcase>
+  <testcase name="TOTAL :: throughput &gt;= 100" classname="reportforge.sla"/>
+</testsuite>

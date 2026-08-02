@@ -1,0 +1,22 @@
+# Build output
+target/
+dist/
+
+# IDE
+.idea/
+*.iml
+.vscode/
+.settings/
+.classpath
+.project
+
+# Tool metadata
+.qoder/
+.writing/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Maven shade
+dependency-reduced-pom.xml

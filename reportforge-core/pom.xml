@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>io.forge.reportforge</groupId>
+    <artifactId>reportforge-parent</artifactId>
+    <version>0.5.0</version>
+  </parent>
+  <artifactId>reportforge-core</artifactId>
+  <name>ReportForge Core (zero JMeter dependency)</name>
+
+  <dependencies>
+    <dependency>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter</artifactId>
+      <version>5.10.2</version>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
+
+  <!-- UI assets are copied into core resources at build time so any consumer
+       (CLI, JMeter plugin, LoadStorm/ScaleForge) can assemble reports. -->
+  <build>
+    <resources>
+      <resource><directory>src/main/resources</directory></resource>
+      <resource>
+        <directory>${project.basedir}/../reportforge-ui/src</directory>
+        <targetPath>ui</targetPath>
+      </resource>
+      <resource>
+        <directory>${project.basedir}/../reportforge-ui/vendor</directory>
+        <targetPath>ui</targetPath>
+      </resource>
+    </resources>
+  </build>
+</project>

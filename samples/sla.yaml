@@ -1,0 +1,20 @@
+version: 1
+defaults:
+  window: steady-state
+  apdex: { satisfied_ms: 500, tolerated_ms: 1500 }
+rules:
+  - match: "Checkout*"
+    assert:
+      - { metric: p95, op: "<", value: 1500, warn: 1200 }
+      - { metric: error_rate, op: "<", value: 2.0 }
+  - match: "Payment*"
+    assert:
+      - { metric: p95, op: "<", value: 2000 }
+      - { metric: error_rate, op: "<", value: 1.0 }
+  - match: "Login"
+    assert:
+      - { metric: p95, op: "<", value: 500, warn: 400 }
+  - match: "TOTAL"
+    assert:
+      - { metric: error_rate, op: "<", value: 1.5, warn: 0.5 }
+      - { metric: throughput, op: ">=", value: 100 }
