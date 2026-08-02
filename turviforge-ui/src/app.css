@@ -166,6 +166,7 @@ footer { color: var(--muted); font: 11px var(--mono); text-align: center; margin
 .delta-pos { color: var(--red); }
 .delta-neg { color: var(--green); }
 .delta-neutral { color: var(--muted); }
+.muted { color: var(--muted); font-size: 0.85em; }
 .regression-badge { display: inline-block; font: 700 10px var(--mono); color: var(--red); border: 1px solid var(--red); border-radius: 3px; padding: 2px 6px; }
 
 @media print {

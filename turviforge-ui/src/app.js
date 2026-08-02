@@ -445,6 +445,11 @@
   if (comparison && comparison.labels && comparison.labels.length) {
     const cmpRows = comparison.labels.map((d) => {
       const deltaCls = (v) => v > 0.5 ? "delta-pos" : v < -0.5 ? "delta-neg" : "delta-neutral";
+      const probCls = d.bayesian ? (d.probRegression >= 0.8 ? "delta-pos" : d.probRegression >= 0.5 ? "delta-neg" : "delta-neutral") : "";
+      const probCell = d.bayesian
+        ? `<td class="${probCls}" title="Posterior P(p95 shift &gt; tolerance), partial-pooled across labels">${Math.round(d.probRegression * 100)}%</td>
+           <td title="Posterior mean shift with 90% credible interval">${d.shiftPctMean >= 0 ? "+" : ""}${d.shiftPctMean.toFixed(1)}% <span class="muted">[${d.shiftPctCiLow.toFixed(1)}, ${d.shiftPctCiHigh.toFixed(1)}]</span></td>`
+        : `<td>—</td><td>—</td>`;
       return `<tr>
         <td class="name">${esc(d.label)}</td>
         <td>${d.baseN.toLocaleString()}</td><td>${d.candN.toLocaleString()}</td>
@@ -454,13 +459,14 @@
         <td class="${deltaCls(d.errorRateDeltaPp)}">${d.errorRateDeltaPp >= 0 ? "+" : ""}${d.errorRateDeltaPp.toFixed(2)}pp</td>
         <td>${d.pValue < 0.001 ? "<0.001" : d.pValue.toFixed(3)}</td>
         <td>${d.cliffsDelta.toFixed(3)}</td>
+        ${probCell}
         <td>${d.regression ? '<span class="regression-badge">REGRESSION</span>' : d.significant ? "sig" : "—"}</td>
       </tr>`;
     }).join("");
     root.appendChild(el(`<div class="panel"><h2>Baseline comparison ${comparison.hasRegression ? '— <span class="regression-badge">REGRESSION DETECTED</span>' : ""}</h2>
       <div class="tablewrap"><table>
         <tr><th>Label</th><th>Base N</th><th>Cand N</th><th>Base p95</th><th>Cand p95</th><th>Δ p95</th>
-        <th>Base Err%</th><th>Cand Err%</th><th>Δ Err</th><th>p-value</th><th>Cliff's δ</th><th>Verdict</th></tr>
+        <th>Base Err%</th><th>Cand Err%</th><th>Δ Err</th><th>p-value</th><th>Cliff's δ</th><th>P(regr)</th><th>Shift (90% CI)</th><th>Verdict</th></tr>
         ${cmpRows}</table></div></div>`));
   }
 

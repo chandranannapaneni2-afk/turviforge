@@ -20,3 +20,8 @@ Thumbs.db
 
 # Maven shade
 dependency-reduced-pom.xml
+
+# Local verification artifacts
+.tmp-classes/
+*.jtl
+*-report/

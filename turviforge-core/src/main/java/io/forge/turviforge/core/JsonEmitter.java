@@ -125,6 +125,11 @@ public final class JsonEmitter {
                         .kv("baseApdex", d.baseApdex).kv("candApdex", d.candApdex)
                         .kv("pValue", d.pValue).kv("cliffsDelta", d.cliffsDelta)
                         .kv("significant", d.significant).kv("regression", d.regression)
+                        .kv("bayesian", d.bayesian)
+                        .kv("probRegression", d.probRegression)
+                        .kv("shiftPctMean", d.shiftPctMean)
+                        .kv("shiftPctCiLow", d.shiftPctCiLow)
+                        .kv("shiftPctCiHigh", d.shiftPctCiHigh)
                         .endObj();
             }
             j.endArr().endObj();

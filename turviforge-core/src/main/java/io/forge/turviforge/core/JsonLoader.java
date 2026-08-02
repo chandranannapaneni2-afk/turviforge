@@ -30,7 +30,7 @@ public final class JsonLoader {
             switch (key) {
                 case "schema" -> p.readString();
                 case "meta" -> parseMeta(p, m);
-                case "labels" -> { p.expect('['); while (p.peek() != ']') { m.labels.add(parseLabel(p)); } p.expect(']'); }
+                case "labels" -> { p.expect('['); while (p.peek() != ']') { m.labels.add(parseLabel(p)); p.comma(); } p.expect(']'); }
                 case "total" -> { if (p.peek() == 'n') p.readNull(); else m.total = parseLabel(p); }
                 case "series" -> skipValue(p);
                 case "errors" -> skipValue(p);
@@ -50,9 +50,9 @@ public final class JsonLoader {
             String key = p.readKey();
             switch (key) {
                 case "title" -> m.title = p.readString();
-                case "source" -> { p.expect('['); while (p.peek() != ']') m.sources.add(p.readString()); p.expect(']'); }
+                case "source" -> { p.expect('['); while (p.peek() != ']') { m.sources.add(p.readString()); p.comma(); } p.expect(']'); }
                 case "extras" -> { p.expect('{'); while (p.peek() != '}') { String k = p.readKey(); m.extras.put(k, p.readString()); p.comma(); } p.expect('}'); }
-                case "warnings" -> { p.expect('['); while (p.peek() != ']') m.warnings.add(p.readString()); p.expect(']'); }
+                case "warnings" -> { p.expect('['); while (p.peek() != ']') { m.warnings.add(p.readString()); p.comma(); } p.expect(']'); }
                 default -> skipValue(p);
             }
             p.comma();

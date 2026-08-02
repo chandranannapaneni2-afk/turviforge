@@ -35,6 +35,12 @@ public final class ComparisonEngine {
         public double cliffsDelta;
         public boolean significant;
         public boolean regression;
+        // Bayesian hierarchical posterior (HMC)
+        public double probRegression;   // P(p95 shift > tolerance), partial-pooled across labels
+        public double shiftPctMean;     // posterior mean % shift in p95
+        public double shiftPctCiLow;    // 90% credible interval (lower)
+        public double shiftPctCiHigh;   // 90% credible interval (upper)
+        public boolean bayesian;        // true when posterior fields are populated
     }
 
     public static final class ComparisonResult {
@@ -118,7 +124,75 @@ public final class ComparisonEngine {
             if (d.regression) result.hasRegression = true;
             result.labels.add(d);
         }
+
+        applyBayesian(result, baseline, candidate);
         return result;
+    }
+
+    /**
+     * Hierarchical Bayesian comparison (HMC): partial-pools each label's
+     * log-p95 shift toward a shared group distribution and reports
+     * P(shift > tolerance) plus a credible interval. Populates the
+     * {@code probRegression}/{@code shiftPct*} fields on each label.
+     */
+    private void applyBayesian(ComparisonResult result, ReportModel baseline, ReportModel candidate) {
+        Map<String, ReportModel.LabelStats> baseMap = labelLookup(baseline);
+        Map<String, ReportModel.LabelStats> candMap = labelLookup(candidate);
+
+        List<String> names = new ArrayList<>();
+        List<Double> dList = new ArrayList<>();
+        List<Double> sList = new ArrayList<>();
+        List<LabelDelta> deltas = new ArrayList<>();
+
+        for (LabelDelta ld : result.labels) {
+            ReportModel.LabelStats b = baseMap.get(ld.label);
+            ReportModel.LabelStats c = candMap.get(ld.label);
+            if (b == null || c == null
+                    || b.histogramB64 == null || b.histogramB64.isEmpty()
+                    || c.histogramB64 == null || c.histogramB64.isEmpty()) continue;
+            try {
+                LogHistogram hb = LogHistogram.fromBase64(b.histogramB64);
+                LogHistogram hc = LogHistogram.fromBase64(c.histogramB64);
+                long p95b = hb.quantile(0.95), p95c = hc.quantile(0.95);
+                if (p95b <= 0 || p95c <= 0) continue;
+                double seb = BayesianComparison.seLogP95(hb);
+                double sec = BayesianComparison.seLogP95(hc);
+                if (Double.isNaN(seb) || Double.isNaN(sec)) continue;
+                double s = Math.sqrt(seb * seb + sec * sec);
+                if (s <= 0) continue;
+                names.add(ld.label);
+                dList.add(Math.log((double) p95c / p95b));
+                sList.add(s);
+                deltas.add(ld);
+            } catch (Exception e) {
+                // skip labels with unusable histograms
+            }
+        }
+        if (names.isEmpty()) return;
+
+        double[] d = new double[names.size()];
+        double[] s = new double[names.size()];
+        for (int i = 0; i < d.length; i++) { d[i] = dList.get(i); s[i] = sList.get(i); }
+
+        BayesianComparison.Result br = new BayesianComparison(cfg.p95TolerancePct, 42L)
+                .infer(names.toArray(new String[0]), d, s);
+
+        for (int i = 0; i < deltas.size() && i < br.labels.size(); i++) {
+            LabelDelta ld = deltas.get(i);
+            BayesianComparison.LabelPosterior lp = br.labels.get(i);
+            ld.probRegression = lp.probRegression;
+            ld.shiftPctMean = lp.shiftPctMean;
+            ld.shiftPctCiLow = lp.shiftPctCiLow;
+            ld.shiftPctCiHigh = lp.shiftPctCiHigh;
+            ld.bayesian = true;
+        }
+    }
+
+    private static Map<String, ReportModel.LabelStats> labelLookup(ReportModel m) {
+        Map<String, ReportModel.LabelStats> map = new TreeMap<>();
+        if (m.total != null) map.put("TOTAL", m.total);
+        for (ReportModel.LabelStats ls : m.labels) map.put(ls.name, ls);
+        return map;
     }
 
     /**
