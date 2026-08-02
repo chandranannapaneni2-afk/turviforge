@@ -269,6 +269,39 @@
     return o;
   }
 
+  /* ---------------- conservation monitor (Little's Law) ---------------- */
+  if (D.scalability.littleLaw && D.scalability.littleLaw.length >= 2) {
+    root.appendChild(el(`<div class="panel"><h2>Conservation monitor &mdash; Little&rsquo;s Law residual (N &minus; X&middot;R)</h2><div id="llChart" class="chart"></div></div>`));
+  }
+  function llOption() {
+    const p = palette();
+    const o = baseOpt();
+    const rows = D.scalability.littleLaw;
+    o.yAxis.name = "\u0394 threads";
+    o.series = [
+      { name: "residual N\u2212X\u00b7R", type: "line", showSymbol: false,
+        lineStyle: { width: 2, color: p.amber }, itemStyle: { color: p.amber },
+        areaStyle: { opacity: 0.10, color: p.amber },
+        markLine: { silent: true, symbol: "none",
+          lineStyle: { color: p.muted, type: "dashed", width: 1 },
+          label: { formatter: "N = X\u00b7R", color: p.muted, fontSize: 10, position: "insideEndTop" },
+          data: [{ yAxis: 0 }] },
+        markArea: { silent: true, itemStyle: { color: p.trace, opacity: 0.06 },
+          label: { show: true, formatter: "steady state", color: p.muted, fontSize: 9, position: "insideTop" },
+          data: [[{ xAxis: steady.startMs }, { xAxis: steady.endMs }]] },
+        data: rows.map((r) => [r.t, +r.residual.toFixed(2)]) },
+      { name: "threads (N)", type: "line", yAxisIndex: 1, showSymbol: false, step: "middle",
+        lineStyle: { width: 1, color: p.trace, type: "dashed" }, itemStyle: { color: p.trace },
+        data: rows.map((r) => [r.t, r.threads]) },
+      { name: "predicted (X\u00b7R)", type: "line", yAxisIndex: 1, showSymbol: false,
+        lineStyle: { width: 1, color: p.green, type: "dashed" }, itemStyle: { color: p.green },
+        data: rows.map((r) => [r.t, +r.predicted.toFixed(2)]) },
+    ];
+    o.yAxis = [o.yAxis, { type: "value", name: "threads", axisLine: { show: false },
+      splitLine: { show: false }, axisLabel: { color: p.muted } }];
+    return o;
+  }
+
   /* ---------------- transaction table ---------------- */
   const cols = [
     ["name", "Transaction"], ["n", "Samples"], ["errorRate", "Err %"], ["mean", "Mean"],
@@ -439,6 +472,7 @@
   chart("bwChart", bwOption);
   chart("thChart", thOption);
   if (document.getElementById("scChart")) chart("scChart", scOption);
+  if (document.getElementById("llChart")) chart("llChart", llOption);
   renderTable();
 
   document.getElementById("tableSearch").addEventListener("input", (e) => {

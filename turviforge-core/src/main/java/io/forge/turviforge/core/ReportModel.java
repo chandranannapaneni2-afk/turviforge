@@ -22,6 +22,7 @@ public final class ReportModel {
     public int kneeThreads = -1;
     public double kneeThroughput = -1;
     public double littlesLawDeviation = -1;
+    public final List<LittleRow> littleLaw = new ArrayList<>();
 
     public SlaEngine.Verdict verdict;   // set by SLA engine, may stay null
 
@@ -66,5 +67,13 @@ public final class ReportModel {
         public int threads;
         public double throughput;
         public long p95;
+    }
+
+    /** Per-bucket Little's Law residual: N (threads) vs X·R (predicted concurrency). */
+    public static final class LittleRow {
+        public long t;
+        public int threads;      // actual concurrency N
+        public double predicted;  // X * R (throughput x mean response time)
+        public double residual;   // N - X*R; positive => invisible queueing
     }
 }

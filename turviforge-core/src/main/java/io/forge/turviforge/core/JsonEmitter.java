@@ -84,6 +84,12 @@ public final class JsonEmitter {
             j.obj().kv("threads", m.kneeThreads).kv("throughput", m.kneeThroughput).endObj();
         } else j.nul();
         j.kv("littlesLawDeviation", m.littlesLawDeviation);
+        j.key("littleLaw").arr();
+        for (ReportModel.LittleRow r : m.littleLaw) {
+            j.obj().kv("t", r.t).kv("threads", r.threads)
+                    .kv("predicted", r.predicted).kv("residual", r.residual).endObj();
+        }
+        j.endArr();
         j.endObj();
 
         j.key("sla");

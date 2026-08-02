@@ -357,6 +357,21 @@ public final class MetricsPipeline {
                 m.littlesLawDeviation = nBar <= 0 ? 0 : Math.abs(predicted - nBar) / nBar;
             }
         }
+        // Little's Law residual trace (conservation monitor): per-bucket N - X*R.
+        // A positive residual means more threads are in the system than throughput x
+        // response-time predicts -> invisible queueing (pool saturation, GC, retries).
+        for (var e : total.entrySet()) {
+            Bucket b = e.getValue();
+            if (b.n <= 0 || b.maxThreads <= 0) continue;
+            double x = b.n / bucketS;                          // throughput (req/s)
+            double r = (b.sumElapsed / (double) b.n) / 1000.0; // mean response (s)
+            ReportModel.LittleRow lr = new ReportModel.LittleRow();
+            lr.t = e.getKey();
+            lr.threads = b.maxThreads;
+            lr.predicted = x * r;
+            lr.residual = b.maxThreads - lr.predicted;
+            m.littleLaw.add(lr);
+        }
     }
 
     /** Error cluster with normalised signatures (FR-207). */
