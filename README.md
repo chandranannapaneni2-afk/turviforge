@@ -83,5 +83,36 @@ samples/               example sla.yaml
 ## Roadmap (per PRD)
 
 Phase 3: baseline comparison (Mann-Whitney U + Cliff's delta from serialized
-histograms — already emitted in the JSON), XML JTL input, sub-sample policy.
-Phase 4: live SampleListener collector, Plugins Manager listing.
+histograms), XML JTL input, sub-sample policy. **Done.**
+Phase 4: live SampleListener collector, Plugins Manager listing. **Done.**
+
+## Contributions
+
+Contributions are not currently accepted unless accompanied by a
+separate contributor license agreement approved by the repository owner.
+
+## License
+
+Copyright © 2026 Chandran Annapaneni. All rights reserved.
+
+ReportForge is source-available under the [PolyForm Noncommercial
+License 1.0.0](https://polyformproject.org/licenses/noncommercial/1.0.0).
+
+You may use, study, modify, and distribute ReportForge only for
+purposes permitted by that license.
+
+Commercial use—including providing ReportForge as part of a paid
+product or service, using it to deliver paid services, or using it
+for internal business purposes—requires a separate commercial
+license from the copyright owner.
+
+For commercial licensing, contact: chandranannapaneni2@gmail.com
+
+See [LICENSE](LICENSE) for the complete terms.
+
+### Third-party software
+
+ReportForge includes Apache ECharts, which remains licensed separately
+under the Apache License 2.0. The ReportForge license does not restrict
+rights granted directly under third-party licenses. See
+[THIRD_PARTY_NOTICES](THIRD_PARTY_NOTICES).
